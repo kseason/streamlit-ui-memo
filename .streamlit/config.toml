@@ -1,0 +1,13 @@
+# ── テーマ（ui-memo.com に寄せる。確定色は後で差し替え）──
+[theme]
+primaryColor = "#6C8CF5"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F4F6FB"
+textColor = "#2A2E3A"
+font = "sans serif"
+
+[client]
+toolbarMode = "minimal"
+
+[browser]
+gatherUsageStats = false
