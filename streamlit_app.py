@@ -21,7 +21,7 @@ TIER_C = ("#E8F6EE", "#257A52", "#CDEBD9")   # 広く使える
 st.set_page_config(
     page_title="Streamlit UI ウィジェット網羅カタログ | UI Memo",
     page_icon="🎛️",
-    layout="centered",
+    layout="wide",
     initial_sidebar_state="expanded",
 )
 
@@ -34,7 +34,7 @@ UIMEMO = {
 # ── スタイル ──
 st.markdown(f"""
 <style>
-  .block-container {{ max-width: 820px; }}
+  .block-container {{ max-width: min(1280px, 94vw); margin-inline: auto; padding-top: 2rem; }}
   .block-container h1, .block-container h2, .block-container h3 {{ color:{TEXT}; }}
   .wt-pill {{ display:inline-block; padding:2px 10px; border-radius:5px;
     background:{CREAM}; color:{CREAM_TEXT}; font-size:.78rem; font-weight:700; }}
@@ -103,10 +103,27 @@ def page_home():
     st.markdown(f'<span class="wt-pill">このデモは v{st.__version__} で動作中</span>',
                 unsafe_allow_html=True)
     st.markdown(
-        "PythonだけでこのUIが全部リアルタイムに動く。"
-        "UIコンポーネント実装リファレンス [UI Memo](https://ui-memo.com) のプレイグラウンド。"
-        "左のサイドバーからカテゴリを選んでください。"
+        "PythonだけでこのUIが動く、UIコンポーネント実装リファレンス "
+        "[UI Memo](https://ui-memo.com) のプレイグラウンド。"
+        "左のサイドバーからカテゴリを選ぶと、各ウィジェットを実際に触れます。"
     )
+
+    st.subheader(f"v{st.__version__} で追加された新機能")
+    st.markdown("最新バージョンで入った主な機能です。デモは各ページで実際に触れます。")
+
+    with st.container(border=True):
+        st.markdown("**st.pagination** ｜ ページ送りUI。dataframe 等のページングに使える。")
+        st.page_link(P_DATA, label="データ表示・編集 で触る", icon=":material/arrow_forward:")
+    with st.container(border=True):
+        st.markdown('**expander / status の `type="compact"`** ｜ 省スペース表示の新オプション。')
+        col1, col2 = st.columns(2)
+        col1.page_link(P_OVERLAY, label="オーバーレイ＆コンテナ", icon=":material/arrow_forward:")
+        col2.page_link(P_FEEDBACK, label="フィードバック", icon=":material/arrow_forward:")
+    with st.container(border=True):
+        st.markdown("**info / success / warning / error の title 引数** ｜ アラートに見出しを付けられる。")
+        st.page_link(P_FEEDBACK, label="フィードバック で触る", icon=":material/arrow_forward:")
+    st.caption("このほか @st.fragment(parallel=True) の並列実行、streamlit skills CLI なども v"
+               f"{st.__version__} で追加されています。")
 
     st.subheader("バージョン表記の見方")
     st.markdown(f"""
@@ -114,20 +131,6 @@ def page_home():
     <div class="wt-legrow"><b style="background:{TIER_B[0]};color:{TIER_B[1]};border-color:{TIER_B[2]}">Tier B　v1.23〜1.32</b> 中堅</div>
     <div class="wt-legrow"><b style="background:{TIER_C[0]};color:{TIER_C[1]};border-color:{TIER_C[2]}">Tier C　初期〜</b> ごく初期から安定。ほぼ全環境でOK</div>
     """, unsafe_allow_html=True)
-
-    st.subheader("リアルタイムに反応するショーケース")
-    with st.container(border=True):
-        series = st.segmented_control(
-            "系列", ["売上", "UU", "PV"], default="売上",
-            key="hook_series", label_visibility="collapsed") or "売上"
-        base = {"売上": [120, 150, 170, 140, 190, 230, 260],
-                "UU": [800, 920, 1010, 980, 1120, 1340, 1500],
-                "PV": [2400, 2600, 3010, 2880, 3320, 3900, 4400]}
-        df = pd.DataFrame({series: base[series]}, index=[f"D{i+1}" for i in range(7)])
-        c1, c2 = st.columns([3, 1])
-        c1.line_chart(df, height=160)
-        c2.metric(series, f"{base[series][-1]:,}",
-                  f"+{base[series][-1]-base[series][-2]:,}")
 
 def page_data():
     st.header("データ表示・編集")
@@ -347,16 +350,17 @@ def page_feedback():
     ])
 
 # ═══════════════ ナビゲーション ═══════════════
+P_HOME = st.Page(page_home, title="はじめに", icon=":material/home:", default=True)
+P_DATA = st.Page(page_data, title="データ表示・編集", icon=":material/table:")
+P_CHARTS = st.Page(page_charts, title="チャート", icon=":material/bar_chart:")
+P_CHAT = st.Page(page_chat, title="チャット", icon=":material/chat:")
+P_INPUTS = st.Page(page_inputs, title="入力ウィジェット", icon=":material/edit:")
+P_OVERLAY = st.Page(page_overlay, title="オーバーレイ＆コンテナ", icon=":material/layers:")
+P_FEEDBACK = st.Page(page_feedback, title="フィードバック", icon=":material/notifications:")
+
 sidebar_legend()
 nav = st.navigation({
-    "": [st.Page(page_home, title="はじめに", icon=":material/home:", default=True)],
-    "カテゴリ": [
-        st.Page(page_data, title="データ表示・編集", icon=":material/table:"),
-        st.Page(page_charts, title="チャート", icon=":material/bar_chart:"),
-        st.Page(page_chat, title="チャット", icon=":material/chat:"),
-        st.Page(page_inputs, title="入力ウィジェット", icon=":material/edit:"),
-        st.Page(page_overlay, title="オーバーレイ＆コンテナ", icon=":material/layers:"),
-        st.Page(page_feedback, title="フィードバック", icon=":material/notifications:"),
-    ],
+    "": [P_HOME],
+    "カテゴリ": [P_DATA, P_CHARTS, P_CHAT, P_INPUTS, P_OVERLAY, P_FEEDBACK],
 })
 nav.run()
