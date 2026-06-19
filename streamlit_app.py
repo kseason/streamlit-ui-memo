@@ -6,13 +6,14 @@ import time
 import pandas as pd
 import streamlit as st
 
-# ── 配色（ここを差し替えれば全体のトーンが変わる）──
-ACCENT = "#6C8CF5"
-ACCENT_DARK = "#3B5BDB"
-ACCENT_SOFT = "#EEF2FE"
-TEXT = "#2A2E3A"
-MUTED = "#6B7280"
-BORDER = "#E6E9F2"
+# ── 配色：ui-memo.com のトークンに合わせる（ここを差し替えれば全体のトーンが変わる）──
+ACCENT = "#cc0000"        # --color-accent（赤）
+ACCENT_DARK = "#990000"
+CREAM = "#efe7cf"         # --color-button（クリーム #e8e0c6）の echo
+CREAM_TEXT = "#6b5a2e"
+TEXT = "#2b2b2b"          # 見出し・ウィジェット名（本文 #555 はテーマ側）
+MUTED = "#888888"         # 補足テキスト
+BORDER = "#e5e5e5"
 TIER_A = ("#FFF3E0", "#B26A00", "#FFE0B2")   # 新しめ・要確認
 TIER_B = ("#EEF1F6", "#4B5563", "#E2E6EE")   # 中堅
 TIER_C = ("#E8F6EE", "#257A52", "#CDEBD9")   # 広く使える
@@ -34,8 +35,9 @@ UIMEMO = {
 st.markdown(f"""
 <style>
   .block-container {{ max-width: 820px; }}
-  .wt-pill {{ display:inline-block; padding:2px 10px; border-radius:999px;
-    background:{ACCENT_SOFT}; color:{ACCENT_DARK}; font-size:.78rem; font-weight:600; }}
+  .block-container h1, .block-container h2, .block-container h3 {{ color:{TEXT}; }}
+  .wt-pill {{ display:inline-block; padding:2px 10px; border-radius:5px;
+    background:{CREAM}; color:{CREAM_TEXT}; font-size:.78rem; font-weight:700; }}
   .wt-head {{ display:flex; align-items:center; gap:8px; margin:.1rem 0 .15rem; }}
   .wt-name {{ font-weight:700; font-family:monospace; color:{TEXT}; font-size:.95rem; }}
   .wt-badge {{ font-size:.7rem; font-weight:700; padding:1px 8px; border-radius:999px; border:1px solid; white-space:nowrap; }}
@@ -43,7 +45,7 @@ st.markdown(f"""
   .wt-B {{ background:{TIER_B[0]}; color:{TIER_B[1]}; border-color:{TIER_B[2]}; }}
   .wt-C {{ background:{TIER_C[0]}; color:{TIER_C[1]}; border-color:{TIER_C[2]}; }}
   .wt-desc {{ color:{MUTED}; font-size:.82rem; margin:.1rem 0 .5rem; }}
-  .wt-link {{ font-size:.8rem; color:{ACCENT_DARK}; text-decoration:none; font-weight:600; }}
+  .wt-link {{ font-size:.8rem; color:{ACCENT}; text-decoration:none; font-weight:600; }}
   .wt-link:hover {{ text-decoration:underline; }}
   .wt-sep {{ border-top:1px solid {BORDER}; margin:1.2rem 0; }}
   .wt-legrow {{ display:flex; align-items:center; gap:6px; margin:.2rem 0; font-size:.74rem; }}

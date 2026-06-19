@@ -1,10 +1,17 @@
-# ── テーマ（ui-memo.com に寄せる。確定色は後で差し替え）──
+# ── テーマ：ui-memo.com のデザイントークンに合わせる ──
 [theme]
-primaryColor = "#6C8CF5"
-backgroundColor = "#FFFFFF"
-secondaryBackgroundColor = "#F4F6FB"
-textColor = "#2A2E3A"
-font = "sans serif"
+primaryColor = "#cc0000"               # --color-accent（赤）
+backgroundColor = "#ffffff"            # --color-body（白）
+secondaryBackgroundColor = "#f6f3ea"   # クリーム寄りの薄色（サイドバー/コンテナ）
+textColor = "#555555"                  # --color-text（本文グレー）
+linkColor = "#cc0000"
+borderColor = "#e5e5e5"
+baseRadius = "5px"                     # --radius
+buttonRadius = "5px"
+font = "Arial, Helvetica, sans-serif"          # body 実フォント
+headingFont = "Arial, Helvetica, sans-serif"
+codeBackgroundColor = "#f5f4f1"
+chartCategoricalColors = ["#cc0000", "#8a8a8a", "#c9a24a", "#444444", "#b0b0b0"]
 
 [client]
 toolbarMode = "minimal"
