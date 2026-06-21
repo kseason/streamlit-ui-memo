@@ -31,6 +31,25 @@ UIMEMO = {
     "slider": "https://www.ui-memo.com/categories/simple-operations/slider",
 }
 
+# ── 被リンク：playground → ui-memo.com の対応ページ ──
+UIMEMO_PAGE = {
+    "hub": "https://www.ui-memo.com/categories/streamlit",
+    "data": "https://www.ui-memo.com/categories/streamlit/data",
+    "charts": "https://www.ui-memo.com/categories/streamlit/charts",
+    "chat": "https://www.ui-memo.com/categories/streamlit/chat",
+    "inputs": "https://www.ui-memo.com/categories/streamlit/inputs",
+    "overlay": "https://www.ui-memo.com/categories/streamlit/overlay",
+    "feedback": "https://www.ui-memo.com/categories/streamlit/feedback",
+}
+
+def umemo_backlink(key, label):
+    """ui-memo.com の対応ページへの戻り導線（解説・コード・React比較）。"""
+    st.markdown(
+        f'<a class="wt-back" href="{UIMEMO_PAGE[key]}" target="_blank" '
+        f'rel="noopener">📖 {label}の解説・コード・React比較を読む（UI Memo）↗</a>',
+        unsafe_allow_html=True,
+    )
+
 # ── スタイル ──
 st.markdown(f"""
 <style>
@@ -47,6 +66,10 @@ st.markdown(f"""
   .wt-desc {{ color:{MUTED}; font-size:.82rem; margin:.1rem 0 .5rem; }}
   .wt-link {{ font-size:.8rem; color:{ACCENT}; text-decoration:none; font-weight:600; }}
   .wt-link:hover {{ text-decoration:underline; }}
+  .wt-back {{ display:inline-block; border:1px solid {ACCENT}; border-radius:5px;
+    padding:6px 12px; color:{ACCENT}; text-decoration:none; font-size:.85rem; font-weight:700;
+    background:{CREAM}; margin-bottom:.6rem; }}
+  .wt-back:hover {{ opacity:.8; }}
   .wt-sep {{ border-top:1px solid {BORDER}; margin:1.2rem 0; }}
   .wt-legrow {{ display:flex; align-items:center; gap:6px; margin:.2rem 0; font-size:.74rem; }}
   .wt-legrow b {{ padding:1px 8px; border-radius:999px; border:1px solid; }}
@@ -107,6 +130,7 @@ def page_home():
         "[UI Memo](https://ui-memo.com) のプレイグラウンド。"
         "左のサイドバーからカテゴリを選ぶと、各ウィジェットを実際に触れます。"
     )
+    umemo_backlink("hub", "Streamlit UI ガイド（総括）")
 
     st.subheader(f"v{st.__version__} で追加された新機能")
     st.markdown("最新バージョンで入った主な機能です。デモは各ページで実際に触れます。")
@@ -134,6 +158,7 @@ def page_home():
 
 def page_data():
     st.header("データ表示・編集")
+    umemo_backlink("data", "データ表示・編集")
     _df = pd.DataFrame({
         "ライブラリ": ["Recharts", "ECharts", "Plotly", "Nivo", "Chart.js", "ApexCharts"],
         "Stars(k)": [24, 62, 17, 13, 65, 14],
@@ -170,6 +195,7 @@ def page_data():
 
 def page_charts():
     st.header("チャート")
+    umemo_backlink("charts", "チャート")
     _cd = pd.DataFrame({"A": [3, 5, 4, 6, 8, 7], "B": [2, 3, 5, 4, 6, 9]})
     _map = pd.DataFrame({"lat": [35.466, 35.443, 35.46], "lon": [139.622, 139.638, 139.63]})
     render_section([
@@ -197,6 +223,7 @@ def page_charts():
 
 def page_chat():
     st.header("チャット")
+    umemo_backlink("chat", "チャット")
     st.markdown("**3行でチャットUIが組める** — Streamlitの代表的な強み")
     def _stream(text):
         for ch in text:
@@ -225,6 +252,7 @@ def page_chat():
 
 def page_inputs():
     st.header("入力ウィジェット")
+    umemo_backlink("inputs", "入力ウィジェット")
     render_section([
         {"name": "st.pills", "ver": (1, 40),
          "desc": "タグ状の単一/複数選択。v1.40で追加。",
@@ -281,6 +309,7 @@ def page_inputs():
 
 def page_overlay():
     st.header("オーバーレイ＆コンテナ")
+    umemo_backlink("overlay", "オーバーレイ＆コンテナ")
     def _dialog():
         @st.dialog("確認")
         def _d():
@@ -323,6 +352,7 @@ def page_overlay():
 
 def page_feedback():
     st.header("フィードバック")
+    umemo_backlink("feedback", "フィードバック")
     def _toast():
         if st.button("toastを出す", key="w_toast"):
             st.toast("保存しました", icon="✅")
