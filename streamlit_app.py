@@ -362,7 +362,7 @@ def page_chat():
             'st.write_stream(stream)', language="python")
     st.markdown('<span class="wt-badge wt-A">v1.59〜</span> '
                 f'<span style="color:{MUTED};font-size:.8rem">submit_mode="stop" で生成中に停止ボタン。'
-                'accept_file を付けると、ファイルの添付と貼り付けができる</span>',
+                'accept_file（v1.43〜）を付けた入力欄に、ファイルを貼り付けて添付できる</span>',
                 unsafe_allow_html=True)
     st.code('msg = st.chat_input(\n'
             '    "メッセージを入力",\n'
