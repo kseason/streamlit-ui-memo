@@ -8,6 +8,7 @@ Streamlit Community Cloud（`ui-memo.streamlit.app`）で公開するソース�
 streamlit_app.py        # カタログ本体（最新 1.66）
 requirements.txt        # streamlit==1.66.1, pandas
 .streamlit/config.toml  # テーマ（ui-memo寄せ。色は差し替え前提）
+tools/screenshots/      # ui-memo.com に載せるスクショの撮影用アプリ（下記）
 ```
 
 ## 中身の特徴
@@ -32,6 +33,10 @@ requirements.txt        # streamlit==1.66.1, pandas
 2. **ui-memoクロスリンクのURL**：`UIMEMO` 辞書に確認済みURL（pagination / slider）のみ記載。
    他は `# 要URL確認` コメントで保留。公開前に実URLを確認して追記する
    （当て推量のリンクは入れない方針）。
+
+## スクリーンショットの撮り直し（ui-memo.com 用）
+Streamlit の版を上げたら、ui-memo.com の Streamlit ページのスクショも撮り直す。
+`tools/screenshots/` の撮影用アプリで、全場面をまとめて撮れる（手順は `tools/screenshots/README.md`）。
 
 ## 更新の流れ
 ウィジェット追加・修正は `streamlit_app.py` を編集して push するだけ。
