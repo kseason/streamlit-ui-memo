@@ -5,8 +5,8 @@ Streamlit Community Cloud（`ui-memo.streamlit.app`）で公開するソース�
 
 ## 構成
 ```
-streamlit_app.py        # カタログ本体（最新 1.58）
-requirements.txt        # streamlit==1.58.0, pandas
+streamlit_app.py        # カタログ本体（最新 1.66）
+requirements.txt        # streamlit==1.66.1, pandas
 .streamlit/config.toml  # テーマ（ui-memo寄せ。色は差し替え前提）
 ```
 
@@ -18,7 +18,8 @@ requirements.txt        # streamlit==1.58.0, pandas
 - 各カテゴリは**導入バージョンの新しい順**に並ぶ（最新UI優先）。
 - 各ウィジェット = 動く本体 ＋ コード ＋ 短い解説 ＋（関連あれば）ui-memoリンク。
 - 主役は データ表示・編集 / チャート / チャット を前方タブに配置。
-- 上部に「v1.58で動作中」表示＋リアルタイム反応ショーケース。
+- 上部に「v1.66.1 で動作中」のように実行中の版を表示（st.__version__ から自動）。
+- Streamlit 1.66 以降は Python 3.11 以上が必要（Community Cloud のアプリは 3.14）。
 
 ## デプロイ（既存アプリの更新）
 すでに `ui-memo.streamlit.app` を作成済みなら、繋いだGitHubリポジトリに

@@ -22,13 +22,19 @@ st.set_page_config(
     page_title="Streamlit UI ウィジェット網羅カタログ | UI Memo",
     page_icon="🎛️",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="auto",  # PCでは開き、スマホでは閉じた状態で始まる
 )
 
 # ── ui-memo クロスリンク（確認済みURLのみ。空は非表示。⚠公開前に実URL確認）──
 UIMEMO = {
     "pagination": "https://www.ui-memo.com/categories/navigation/pagination",
     "slider": "https://www.ui-memo.com/categories/simple-operations/slider",
+    "data_grid": "https://www.ui-memo.com/categories/data-input/data_grid",
+    "pie_chart": "https://www.ui-memo.com/categories/data-visualization/pie_chart",
+    "chat_ui": "https://www.ui-memo.com/categories/data-input/chat_ui",
+    "form_validation": "https://www.ui-memo.com/categories/data-input/form-validation",
+    "hamburger_menu": "https://www.ui-memo.com/categories/navigation/hamburger-menu",
+    "skeleton": "https://www.ui-memo.com/categories/simple-display/skeleton",
 }
 
 # ── 被リンク：playground → ui-memo.com の対応ページ ──
@@ -132,22 +138,35 @@ def page_home():
     )
     umemo_backlink("hub", "Streamlit UI ガイド（総括）")
 
-    st.subheader(f"v{st.__version__} で追加された新機能")
-    st.markdown("最新バージョンで入った主な機能です。デモは各ページで実際に触れます。")
+    # 版が上がっても見出しと中身がずれないよう、対象の版は固定で書く（次の更新時に差し替える）
+    st.subheader("v1.59〜1.66 の主な新機能")
+    st.markdown("前回の更新（v1.58）以降に入った主な機能です。デモは各ページで実際に触れます。")
 
-    with st.container(border=True):
-        st.markdown("**st.pagination** ｜ ページ送りUI。dataframe 等のページングに使える。")
-        st.page_link(P_DATA, label="データ表示・編集 で触る", icon=":material/arrow_forward:")
-    with st.container(border=True):
-        st.markdown('**expander / status の `type="compact"`** ｜ 省スペース表示の新オプション。')
-        col1, col2 = st.columns(2)
-        col1.page_link(P_OVERLAY, label="オーバーレイ＆コンテナ", icon=":material/arrow_forward:")
-        col2.page_link(P_FEEDBACK, label="フィードバック", icon=":material/arrow_forward:")
-    with st.container(border=True):
-        st.markdown("**info / success / warning / error の title 引数** ｜ アラートに見出しを付けられる。")
-        st.page_link(P_FEEDBACK, label="フィードバック で触る", icon=":material/arrow_forward:")
-    st.caption("このほか @st.fragment(parallel=True) の並列実行、streamlit skills CLI なども v"
-               f"{st.__version__} で追加されています。")
+    new_features = [
+        ("**ButtonColumn・MarkdownColumn**（v1.59）｜ 表のセルにボタンや Markdown を置ける。",
+         P_DATA, "データ表示・編集 で触る"),
+        ("**st.echarts_chart**（v1.64）・**st.mermaid_chart**（v1.59）｜ "
+         "ECharts の図や Mermaid のフローチャートを Python から描ける。",
+         P_CHARTS, "チャート で触る"),
+        ("**st.chat_input の `submit_mode`・ファイルの貼り付け**（v1.59）｜ "
+         "生成中の停止ボタンと、画像の添付。",
+         P_CHAT, "チャット で触る"),
+        ("**st.text_input の `type`・`validate`**（v1.62）・**`live`**（v1.64）・**`required`**（v1.65）｜ "
+         "メール・URL・検索の入力と、その場での検証。",
+         P_INPUTS, "入力ウィジェット で触る"),
+        ('**st.dialog の `position`**（v1.65）・**st.expander の `type="step"`**（v1.63）｜ '
+         "画面の端から出るドロワーと、線でつながったタイムライン。",
+         P_OVERLAY, "オーバーレイ＆コンテナ で触る"),
+        ('**st.skeleton**（v1.59）・**st.status の `type="step"`**（v1.63）｜ '
+         "読み込み中のプレースホルダーと、処理の手順の表示。",
+         P_FEEDBACK, "フィードバック で触る"),
+    ]
+    for text, page, label in new_features:
+        with st.container(border=True):
+            st.markdown(text)
+            st.page_link(page, label=label, icon=":material/arrow_forward:")
+    st.caption("このほか、アプリのコードで async / await が使えるようになりました（v1.64）。"
+               "v1.66 から Python 3.11 以上が必要です。")
 
     st.subheader("バージョン表記の見方")
     st.markdown(f"""
@@ -168,16 +187,47 @@ def page_data():
         per = 2
         n = (len(_df) + per - 1) // per
         p = st.pagination(n, default=1, key="pg_data")
-        st.dataframe(_df.iloc[(p-1)*per:(p-1)*per+per], use_container_width=True, hide_index=True)
+        st.dataframe(_df.iloc[(p-1)*per:(p-1)*per+per], width="stretch", hide_index=True)
+    _names = ["ECharts", "Recharts", "Plotly"]
+    def _btn_md():
+        # MarkdownColumn のセルは素の文字で表示され、ダブルクリックで開くと Markdown が整形される
+        df = pd.DataFrame({
+            "ライブラリ": _names,
+            "メモ": ["図の種類が豊富\n\n- canvas で描画\n- ゲージやサンキーも",
+                     "React 向けの定番\n\n- SVG で描画\n- 部品を組み合わせて作る",
+                     "科学技術系に強い\n\n- WebGL で大量の点も\n- 3D のグラフも"],
+            "詳細": [":material/visibility: 見る"] * len(_names),
+        })
+        def _on_click():
+            row = st.session_state.btn_col["row"]
+            st.toast(f"{_names[row]} の「見る」が押されました")
+        st.dataframe(df, width="stretch", hide_index=True, column_config={
+            "メモ": st.column_config.MarkdownColumn(width="medium"),
+            "詳細": st.column_config.ButtonColumn(on_click=_on_click, key="btn_col"),
+        })
+        st.caption("「見る」を押すと、押された行をコールバックで受け取ります。"
+                   "メモのセルはダブルクリックで開くと Markdown が整形されて表示されます。")
     render_section([
+        {"name": "ButtonColumn / MarkdownColumn", "ver": (1, 59), "link": "data_grid",
+         "desc": "ButtonColumn はセルにボタンを置き、押された行をコールバックで受け取れる。"
+                 "MarkdownColumn はセルを開くと Markdown を整形して表示する。v1.59で追加。",
+         "code": 'st.dataframe(df, column_config={\n'
+                 '    "メモ": st.column_config.MarkdownColumn(),\n'
+                 '    "詳細": st.column_config.ButtonColumn(\n'
+                 '        on_click=show, key="btn",\n'
+                 '    ),\n'
+                 '})\n'
+                 '# show の中で、押された行は\n'
+                 '# st.session_state.btn["row"]',
+         "render": _btn_md},
         {"name": "st.dataframe", "ver": (1, 0), "link": "line_chart",
-         "desc": "ソート・検索・列メニュー標準装備の表示テーブル。",
+         "desc": "ソート・検索・列メニュー標準装備の表示テーブル。v1.59で列メニューに統計も追加。",
          "code": "st.dataframe(\n    df,\n    hide_index=True,\n)",
-         "render": lambda: st.dataframe(_df, use_container_width=True, hide_index=True)},
+         "render": lambda: st.dataframe(_df, width="stretch", hide_index=True)},
         {"name": "st.data_editor", "ver": (1, 23),
          "desc": "セルを直接編集できるグリッド。行追加も可。",
          "code": 'st.data_editor(\n    df,\n    num_rows="dynamic",\n)',
-         "render": lambda: st.data_editor(_df, use_container_width=True, hide_index=True,
+         "render": lambda: st.data_editor(_df, width="stretch", hide_index=True,
                                           num_rows="dynamic", key="ed_data")},
         {"name": "st.pagination", "ver": (1, 58), "link": "pagination",
          "desc": "ページ送りUI。dataframe等のページングに。v1.58で追加。",
@@ -198,7 +248,53 @@ def page_charts():
     umemo_backlink("charts", "チャート")
     _cd = pd.DataFrame({"A": [3, 5, 4, 6, 8, 7], "B": [2, 3, 5, 4, 6, 9]})
     _map = pd.DataFrame({"lat": [35.466, 35.443, 35.46], "lon": [139.622, 139.638, 139.63]})
+    _donut = {
+        "tooltip": {"trigger": "item"},
+        "legend": {"bottom": 0},
+        "series": [{
+            "type": "pie",
+            "radius": ["45%", "70%"],
+            "label": {"formatter": "{b} {d}%"},
+            "data": [
+                {"name": "スマホ", "value": 58},
+                {"name": "PC", "value": 36},
+                {"name": "タブレット", "value": 6},
+            ],
+        }],
+    }
+    _flow = """
+flowchart LR
+    A[入力] --> B{検証}
+    B -->|OK| C[保存]
+    B -->|NG| D[エラー表示]
+    D --> A
+"""
     render_section([
+        {"name": "st.echarts_chart", "ver": (1, 64), "link": "pie_chart",
+         "desc": "ECharts の option（dict）をそのまま渡して描く。色やフォントは Streamlit のテーマに揃う。v1.64で追加。",
+         "code": 'st.echarts_chart({\n'
+                 '    "tooltip": {"trigger": "item"},\n'
+                 '    "series": [{\n'
+                 '        "type": "pie",\n'
+                 '        "radius": ["45%", "70%"],\n'
+                 '        "data": [\n'
+                 '            {"name": "スマホ", "value": 58},\n'
+                 '            {"name": "PC", "value": 36},\n'
+                 '        ],\n'
+                 '    }],\n'
+                 '})',
+         "render": lambda: st.echarts_chart(_donut, height=260,
+                                            alt="デバイス別のアクセスのドーナツグラフ")},
+        {"name": "st.mermaid_chart", "ver": (1, 59),
+         "desc": "Mermaid 記法の文字列から、フローチャートやシーケンス図を描く。v1.59で追加。",
+         "code": 'st.mermaid_chart("""\n'
+                 'flowchart LR\n'
+                 '    A[入力] --> B{検証}\n'
+                 '    B -->|OK| C[保存]\n'
+                 '    B -->|NG| D[エラー表示]\n'
+                 '    D --> A\n'
+                 '""")',
+         "render": lambda: st.mermaid_chart(_flow, alt="入力から保存までのフローチャート")},
         {"name": "st.line_chart", "ver": (1, 0), "link": "line_chart",
          "desc": "DataFrameを渡すだけで折れ線。1行で描ける。",
          "code": "st.line_chart(df)",
@@ -225,23 +321,38 @@ def page_chat():
     st.header("チャット")
     umemo_backlink("chat", "チャット")
     st.markdown("**3行でチャットUIが組める** — Streamlitの代表的な強み")
+    st.caption("送信すると、返答の生成中は送信ボタンが停止ボタンに変わります。"
+               "画像は左の＋ボタンから添付するか、入力欄に貼り付けられます。")
     def _stream(text):
+        # 停止ボタンで途中で止めても、そこまでの返答が履歴に残るよう1文字ずつ保存する
+        st.session_state.hist.append({"role": "assistant", "content": ""})
         for ch in text:
+            st.session_state.hist[-1]["content"] += ch
             yield ch
-            time.sleep(0.01)
+            time.sleep(0.04)
+    def _show(text, images):
+        if text:
+            st.write(text)
+        for img in images:
+            st.image(img, width=160)
     if "hist" not in st.session_state:
         st.session_state.hist = [{"role": "assistant", "content": "なんでも入力してみてください。"}]
     for m in st.session_state.hist:
         with st.chat_message(m["role"]):
-            st.write(m["content"])
-    if prompt := st.chat_input("メッセージを入力", key="chat_in"):
-        st.session_state.hist.append({"role": "user", "content": prompt})
+            _show(m["content"], m.get("images", []))
+    msg = st.chat_input("メッセージを入力（画像の貼り付けも可）", key="chat_in",
+                        accept_file=True, file_type=["png", "jpg", "jpeg", "gif", "webp"],
+                        max_upload_size=5, submit_mode="stop")
+    if msg:
+        images = [f.getvalue() for f in msg.files]
+        st.session_state.hist.append({"role": "user", "content": msg.text, "images": images})
         with st.chat_message("user"):
-            st.write(prompt)
+            _show(msg.text, images)
         with st.chat_message("assistant"):
-            reply = f"受け取りました：{prompt}"
-            st.write_stream(_stream(reply))
-        st.session_state.hist.append({"role": "assistant", "content": reply})
+            got = f"（画像 {len(images)} 枚を受け取りました）" if images else ""
+            st.write_stream(_stream(f"受け取りました：{msg.text}{got}"
+                                    "　返答の生成中は、送信ボタンが停止ボタンに変わります。"
+                                    "押すとその場で止まります。"))
     st.markdown('<div class="wt-sep"></div>', unsafe_allow_html=True)
     st.markdown('<span class="wt-badge wt-B">v1.24〜</span> '
                 f'<span style="color:{MUTED};font-size:.8rem">chat_message / chat_input。'
@@ -249,11 +360,57 @@ def page_chat():
     st.code('with st.chat_message("user"):\n'
             '    st.write(prompt)\n'
             'st.write_stream(stream)', language="python")
+    st.markdown('<span class="wt-badge wt-A">v1.59〜</span> '
+                f'<span style="color:{MUTED};font-size:.8rem">submit_mode="stop" で生成中に停止ボタン。'
+                'accept_file（v1.43〜）を付けた入力欄に、ファイルを貼り付けて添付できる</span>',
+                unsafe_allow_html=True)
+    st.code('msg = st.chat_input(\n'
+            '    "メッセージを入力",\n'
+            '    accept_file=True,\n'
+            '    file_type=["png", "jpg"],\n'
+            '    submit_mode="stop",\n'
+            ')\n'
+            'if msg:\n'
+            '    st.write(msg.text)   # 入力した文字\n'
+            '    for f in msg.files:  # 添付したファイル\n'
+            '        st.image(f)', language="python")
+    st.markdown(f'<a class="wt-link" href="{UIMEMO["chat_ui"]}" target="_blank">'
+                'ui-memoで実装比較 →</a>', unsafe_allow_html=True)
 
 def page_inputs():
     st.header("入力ウィジェット")
     umemo_backlink("inputs", "入力ウィジェット")
+    def _text_validate():
+        st.text_input("メール", type="email", key="w_email")
+        st.text_input("郵便番号", placeholder="123-4567", required=True,
+                      validate=(r"^\d{3}-\d{4}$", "123-4567 の形式で入力してください"),
+                      key="w_zip")
+    _libs = ["Recharts", "ECharts", "Plotly", "Nivo", "Chart.js", "ApexCharts", "Victory", "D3"]
+    def _text_live():
+        q = st.text_input("ライブラリを検索", type="search", live=True,
+                          placeholder="名前の一部（例: chart）", key="w_search")
+        hits = [n for n in _libs if q.lower() in n.lower()]
+        st.caption("　".join(hits) if hits else "該当なし")
     render_section([
+        {"name": "st.text_input（live）", "ver": (1, 64),
+         "desc": "live=True で、入力の手が止まったとき（250ms）に値が確定し、打ちながら絞り込める。v1.64で追加。",
+         "code": 'q = st.text_input(\n'
+                 '    "検索", type="search", live=True,\n'
+                 ')\n'
+                 'hits = [n for n in names\n'
+                 '        if q.lower() in n.lower()]',
+         "render": _text_live},
+        {"name": "st.text_input（type / validate）", "ver": (1, 62), "link": "form_validation",
+         "desc": 'type="email" などで入力の種類を指定（アイコンと形式の検証付き）。validate に正規表現とメッセージ、'
+                 "required（v1.65）で空欄を防ぐ。v1.62で追加。",
+         "code": 'st.text_input("メール", type="email")\n'
+                 'st.text_input(\n'
+                 '    "郵便番号",\n'
+                 '    validate=(r"^\\d{3}-\\d{4}$",\n'
+                 '              "123-4567 の形式で"),\n'
+                 '    required=True,\n'
+                 ')',
+         "render": _text_validate},
         {"name": "st.pills", "ver": (1, 40),
          "desc": "タグ状の単一/複数選択。v1.40で追加。",
          "code": 'st.pills(\n    "lib", opts,\n    selection_mode="multi",\n)',
@@ -322,7 +479,52 @@ def page_overlay():
         with st.popover("設定を開く"):
             st.checkbox("通知", value=True, key="pop_chk")
             st.slider("音量", 0, 100, 60, key="pop_sld")
+    def _drawer():
+        @st.dialog("メニュー", position="left")
+        def _menu():
+            st.page_link(P_HOME, label="はじめに", icon=":material/home:")
+            st.page_link(P_CHARTS, label="チャート", icon=":material/bar_chart:")
+            st.page_link(P_INPUTS, label="入力ウィジェット", icon=":material/edit:")
+            st.page_link(P_FEEDBACK, label="フィードバック", icon=":material/notifications:")
+        @st.dialog("絞り込み", position="right")
+        def _filter():
+            st.multiselect("カテゴリ", ["チャート", "入力", "表示"], default=["チャート"], key="drw_cat")
+            st.slider("価格", 0, 10000, (1000, 8000), step=500, key="drw_price")
+            if st.button("この条件で絞り込む", type="primary", key="drw_apply"):
+                st.rerun()
+        row = st.container(horizontal=True)
+        if row.button("左からメニュー", icon=":material/menu:", key="w_drw_l"):
+            _menu()
+        if row.button("右から絞り込み", icon=":material/tune:", key="w_drw_r"):
+            _filter()
+    def _expander_steps():
+        with st.expander("要件を整理", type="step", icon=":material/check_circle:"):
+            st.write("誰が・何のために使うかを書き出す")
+        with st.expander("UIを選ぶ", type="step", icon=":material/check_circle:"):
+            st.write("UI Memo で候補のライブラリを比べる")
+        with st.expander("実装する", type="step", icon="spinner", expanded=True):
+            st.write("デモのコードをもとに組み込む")
+        st.expander("公開", type="step")  # 中身のないステップでタイムラインを閉じる
     render_section([
+        {"name": "st.dialog（position）", "ver": (1, 65), "link": "hamburger_menu",
+         "desc": 'position="left" / "right" で、画面の端から全高のドロワーを出す。幅はドラッグで変えられる。v1.65で追加。',
+         "code": '@st.dialog("絞り込み", position="right")\n'
+                 'def panel():\n'
+                 '    st.multiselect("カテゴリ", opts)\n'
+                 '\n'
+                 'if st.button("右から絞り込み"):\n'
+                 '    panel()',
+         "render": _drawer},
+        {"name": 'st.expander（type="step"）', "ver": (1, 63),
+         "desc": "連続した expander が線でつながり、タイムラインになる。手順や処理の流れの表示に。v1.63で追加。",
+         "code": 'with st.expander("要件を整理", type="step",\n'
+                 '                 icon=":material/check_circle:"):\n'
+                 '    st.write("...")\n'
+                 'with st.expander("実装する", type="step",\n'
+                 '                 icon="spinner"):\n'
+                 '    st.write("...")\n'
+                 'st.expander("公開", type="step")  # 空で終わり',
+         "render": _expander_steps},
         {"name": "st.dialog", "ver": (1, 37),
          "desc": "モーダルダイアログ。@st.dialogで装飾。v1.37でGA。",
          "code": '@st.dialog("確認")\ndef show():\n    ...',
@@ -336,7 +538,7 @@ def page_overlay():
          "code": 'a, b = st.tabs(["A","B"])',
          "render": lambda: st.tabs(["A", "B"])},
         {"name": "st.expander", "ver": (1, 0),
-         "desc": "折りたたみ領域。v1.58で type='compact' 追加。",
+         "desc": "折りたたみ領域。v1.58で type='compact'、v1.63で type='step' を追加。",
          "code": 'with st.expander("詳細"):\n    ...',
          "render": lambda: st.expander("詳細", expanded=True).write("中身")},
         {"name": "st.columns", "ver": (1, 0),
@@ -356,7 +558,39 @@ def page_feedback():
     def _toast():
         if st.button("toastを出す", key="w_toast"):
             st.toast("保存しました", icon="✅")
+    _pv = pd.DataFrame({"日付": ["10/01", "10/02", "10/03"], "PV": [1200, 1350, 980]})
+    def _skeleton():
+        if st.button("データを読み込む", key="w_skel"):
+            with st.skeleton(height=140):
+                time.sleep(1.5)  # 重い処理のかわり
+            st.dataframe(_pv, width="stretch", hide_index=True)
+        else:
+            st.skeleton(height=140)  # 押す前は、読み込み中の見た目をそのまま表示
+    def _status_steps():
+        run = st.button("処理を実行", key="w_steps")
+        steps = [("データを取得", "1,240 件を取得"), ("集計", "日別の合計を計算"),
+                 ("レポートを作成", "グラフを描画")]
+        for label, done in steps:
+            # with を抜けると自動で完了（✓）になる。押す前は完了した状態で表示しておく
+            with st.status(label, type="step", state="running" if run else "complete"):
+                if run:
+                    time.sleep(0.8)  # 重い処理のかわり
+                st.write(done)
     render_section([
+        {"name": "st.skeleton", "ver": (1, 59), "link": "skeleton",
+         "desc": "読み込み中のプレースホルダー。with で囲むと処理の間だけ表示され、終わると消える。v1.59で追加。",
+         "code": 'with st.skeleton(height=140):\n'
+                 '    df = load_data()  # 重い処理\n'
+                 'st.dataframe(df)',
+         "render": _skeleton},
+        {"name": 'st.status（type="step"）', "ver": (1, 63),
+         "desc": "連続した status が線でつながり、処理の進み具合をタイムラインで見せられる。v1.63で追加。",
+         "code": 'for label in ["データを取得", "集計",\n'
+                 '              "レポートを作成"]:\n'
+                 '    with st.status(label, type="step"):\n'
+                 '        run(label)  # 処理中はスピナー、\n'
+                 '                    # 終わると完了の印に',
+         "render": _status_steps},
         {"name": "st.feedback", "ver": (1, 37),
          "desc": "星/サムズ評価ウィジェット。v1.37で追加。",
          "code": 'st.feedback("stars")',
